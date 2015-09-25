@@ -1,0 +1,26 @@
+- hosts: all
+  remote_user: vagrant
+  sudo: yes
+  tasks:
+      # Make all the nodes aware of each other
+      - name: update the hosts file
+        template: src=templates/hosts.j2 dest=/etc/hosts
+
+- hosts: master
+  remote_user: vagrant
+  sudo: yes
+  tasks:
+      # Add members of the cluster to knoww_hosts 
+      - name: Make sure the known hosts file exists
+        file: "path=/home/vagrant/.ssh/known_hosts state=touch"
+      - name: add nodes to known_hosts
+        sudo: no
+        shell: ssh-keyscan node1 node2 node3 node4 >> /home/vagrant/.ssh/known_hosts
+      - name: copy ansible playbooks
+        copy: src=../ansible dest=/home/vagrant
+
+      # Install ansible
+      - name: add ansible repo
+        apt_repository: repo='ppa:ansible/ansible' update_cache=yes
+      - name: install ansible
+        apt: pkg=ansible state=present update_cache=yes

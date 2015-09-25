@@ -1,0 +1,4 @@
+---
+  - include: ansible/playbook-hosts.yml
+  - include: ansible/playbook-ansible.yml
+  - include: ansible/playbook-mesos.yml

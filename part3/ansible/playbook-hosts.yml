@@ -1,0 +1,7 @@
+- hosts: all
+  remote_user: vagrant
+  sudo: yes
+  tasks:
+      # Make all the nodes aware of each other
+      - name: update the hosts file
+        template: src=templates/hosts.j2 dest=/etc/hosts

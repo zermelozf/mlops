@@ -1,0 +1,35 @@
+- hosts: master
+  remote_user: vagrant
+  sudo: yes
+  tasks:
+
+      # Download and configure Spark
+      - name: download spark
+        get_url: url=http://apache.crihan.fr/dist/spark/spark-1.4.1/spark-1.4.1-bin-hadoop2.6.tgz dest=/vagrant/spark.tgz force=no
+      - name: untar spark
+        unarchive: src=/vagrant/spark.tgz dest=/home/vagrant
+      - name: configure spark
+        template: src=templates/spark-env.j2 dest=/home/vagrant/spark-1.4.1-bin-hadoop2.6/conf/spark-env.sh
+
+- hosts: all
+  remote_user: vagrant
+  sudo: yes
+  tasks:
+
+      # Install miniconda
+      - name: download miniconda
+        get_url: url=http://repo.continuum.io/miniconda/Miniconda-3.0.0-Linux-x86_64.sh dest=/vagrant/miniconda.sh force=no mode=777
+      - name: install miniconda
+        sudo: False
+        shell: /vagrant/miniconda.sh -b -p /home/vagrant/miniconda executable=/bin/bash
+      - name: update PATH
+        sudo: False
+        shell: echo "export PATH=/home/vagrant/miniconda/bin:$PATH" >> ~/.bashrc
+      - name: update conda
+        sudo: False
+        shell: ~/miniconda/bin/conda update --yes conda
+
+      # Install ipython notebook
+      - name: install ipython notebook
+        sudo: False
+        shell: ~/miniconda/bin/conda install --yes ipython ipython-notebook ipython-qtconsole

@@ -1,0 +1,68 @@
+- hosts: master
+  remote_user: vagrant
+  sudo: yes
+  tasks:
+      # Install mesos, zookeeper, marathon and docker
+      - name: add mesosphere repo key
+        apt_key: keyserver=keyserver.ubuntu.com id=E56151BF state=present
+      - name: install the mesosphere apt repo
+        apt_repository: repo='deb http://repos.mesosphere.com/ubuntu trusty main' state=present update_cache=yes
+      - name: install mesos
+        apt: pkg=mesos state=present update_cache=yes
+      - name: install marathon
+        apt: pkg=marathon state=present update_cache=yes
+
+      # configure mesos and marathon
+      - name: set the zookeeper master
+        shell: sed -i -e 's/localhost/192.168.33.10/g' /etc/mesos/zk
+      - name: configure zookeeper ID
+        shell: echo 1 > /etc/zookeeper/conf/myid
+
+      # Ensure the services are started on boot
+      - name: restart zookeeper and enable it
+        service: name=zookeeper state=restarted enabled=yes
+      - name: enable mesos-master
+        service: name=mesos-master state=started enabled=yes
+      - name: enable mesos-slave
+        service: name=mesos-slave state=started enabled=yes
+      - name: start marathon
+        service: name=marathon state=started enabled=yes
+
+
+- hosts: slaves
+  remote_user: vagrant
+  sudo: yes
+  tasks:
+      # Install mesos and docker
+      - name: add mesosphere repo key
+        apt_key: keyserver=keyserver.ubuntu.com id=E56151BF state=present
+      - name: install the mesosphere apt repo
+        apt_repository: repo='deb http://repos.mesosphere.com/ubuntu trusty main' state=present update_cache=yes
+      - name: install mesosphere
+        apt: pkg=mesos state=present update_cache=yes
+
+        # Configure zookeeper
+      - name: set the zookeeper master
+        shell: sed -i -e 's/localhost/192.168.33.10/g' /etc/mesos/zk
+
+      # Ensure the services are started
+      - name: make sure mesos-slave is running
+        service: name=mesos-slave state=started enabled=yes
+      - name: sisable mesos-master
+        service: name=mesos-master state=stopped enabled=no
+
+
+# Bonus: DOCKER
+# - hosts: all
+#   remote_user: vagrant
+#   sudo: yes
+#       - name: get docker
+#         get_url: url=https://get.docker.com/ dest=/tmp/docker.sh force=no mode=777
+#       - name: install docker
+#         shell: /tmp/docker.sh -b executable=/bin/bash
+#       - name: start docker
+#         service: name=docker state=started enabled=yes
+#       - name: enable docker containers 
+#         template: src=templates/containerizers.j2 dest=/etc/mesos-slave/containerizers
+
+

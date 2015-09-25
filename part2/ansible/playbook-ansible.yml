@@ -1,0 +1,25 @@
+- hosts: master
+  remote_user: vagrant
+  sudo: yes
+  tasks:
+
+      # Install ansible
+      - name: add ansible repo
+        apt_repository: repo='ppa:ansible/ansible' update_cache=yes
+      - name: install ansible
+        apt: pkg=ansible state=present update_cache=yes
+      - name: copy ansible playbooks
+        copy: src=../ansible dest=/home/vagrant
+
+      # Add members of the cluster to knoww_hosts 
+      - name: Make sure the known hosts file exists
+        sudo: no
+        file: path=~/.ssh/known_hosts state=touch
+      - name: add nodes to known_hosts
+        sudo: no
+        shell: "ssh-keyscan {{ item }} >> ~/.ssh/known_hosts executable=/bin/bash"
+        with_items: 
+          - node1
+          - node2
+          - node3
+          - node4
