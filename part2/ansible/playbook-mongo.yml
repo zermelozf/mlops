@@ -1,0 +1,16 @@
+- hosts: all
+  remote_user: vagrant
+  sudo: yes
+  tasks:
+      - name: add mongodb repo key
+        apt_key: keyserver=keyserver.ubuntu.com id=7F0CEB10 state=present
+      - name: install the mongodb apt repo
+        apt_repository: repo='deb http://repo.mongodb.org/apt/ubuntu trusty/mongodb-org/3.0 multiverse' state=present update_cache=yes
+      - name: install mongodb
+        apt: pkg=mongodb-org state=present update_cache=yes
+      - name: ensure mongodb is not running
+        service: name=mongod state=stopped enabled=no
+      - name: ensure db directory exists
+        file: path=/data/db state=directory
+      - name: ensure configdb directory exists
+        file: path=/data/configdb state=directory

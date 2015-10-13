@@ -6,7 +6,7 @@
       - name: add mesosphere repo key
         apt_key: keyserver=keyserver.ubuntu.com id=E56151BF state=present
       - name: install the mesosphere apt repo
-        apt_repository: repo='deb http://repos.mesosphere.com/ubuntu trusty main' state=present update_cache=yes
+        apt_repository: repo='deb http://repos.mesosphere.com/ubuntu vivid main' state=present update_cache=yes
       - name: install mesos
         apt: pkg=mesos state=present update_cache=yes
       - name: install marathon
@@ -45,7 +45,7 @@
       - name: add mesosphere repo key
         apt_key: keyserver=keyserver.ubuntu.com id=E56151BF state=present
       - name: install the mesosphere apt repo
-        apt_repository: repo='deb http://repos.mesosphere.com/ubuntu trusty main' state=present update_cache=yes
+        apt_repository: repo='deb http://repos.mesosphere.com/ubuntu vivid main' state=present update_cache=yes
       - name: install mesosphere
         apt: pkg=mesos state=present update_cache=yes
       - name: install docker
